@@ -39,15 +39,16 @@ python manage.py syncdb
 
 python manage.py runserver
  
-# 当提示端口被占用的时候，可以用其它端口：
+当提示端口被占用的时候，可以用其它端口：
 python manage.py runserver 8001
 python manage.py runserver 9999
 （当然也可以kill掉占用端口的进程，具体后面有讲，此处想知道的同学可查下 lsof 命令用法）
  
-# 监听机器所有可用 ip （电脑可能有多个内网ip或多个外网ip）
+监听机器所有可用 ip （电脑可能有多个内网ip或多个外网ip）
 python manage.py runserver 0.0.0.0:8000
 如果是外网或者局域网电脑上可以用其它电脑查看开发服务器
 访问对应的 ip加端口，比如 http://172.16.20.2:8000
+
 ### 5. 清空数据库
 
 python manage.py flush
@@ -57,10 +58,11 @@ python manage.py flush
 
 python manage.py createsuperuser
  
-# 按照提示输入用户名和对应的密码就好了邮箱可以留空，用户名和密码必填
+按照提示输入用户名和对应的密码就好了邮箱可以留空，用户名和密码必填
  
-# 修改 用户密码可以用：
+修改 用户密码可以用：
 python manage.py changepassword username
+
 ### 7. 导出数据 导入数据
 
 python manage.py dumpdata appname > appname.json
