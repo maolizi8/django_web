@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<title>WEB自动化 - 质量平台</title>
+	<link rel="shortcut icon"href="/static/common/images/yyw_jituan_logo_1.ico">
+	<link rel="stylesheet" type="text/css" href="/static/common/css/bootstrap-3.3.7.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/common/css/public.css"/>
+	<script src="/static/common/js/jquery-3.3.1.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/common/js/bootstrap-3.3.7.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/common/js/layer-v3.1.1/layer.js" type="text/javascript" charset="utf-8"></script>
+	
+	<script src="/static/common/echarts-2.2.7/echarts-all.js"></script>
+	<script src="/static/common/js/public.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+	.navbar{
+		border:none;
+		border-radius: 0px;
+	}
+	.navbar-inverse{
+		/*background-color:#438eb9;*/
+		background: linear-gradient(to bottom right, #997ae1 , #2dd7cc);
+		color:white;
+		margin-bottom: 0px;
+	}
+	.navbar-brand {
+		padding:0px;
+	}	
+	
+	.navbar-inverse .navbar-nav > li > a {
+	    color: #dddddd;
+		font-size:16px;
+		font-weight:bold;
+		padding-left:25px;
+		padding-right:25px;
+	}
+	.navbar-inverse .navbar-nav > li > a:hover {
+	    background-color: transparent;
+		color: white;
+		/*background-color:#337ab7;	*/
+		background: linear-gradient(to bottom right, #997ae1 , #2dd7cc);
+	}
+	
+	.navbar-inverse .navbar-nav > .active > a, 
+	.navbar-inverse .navbar-nav > .active > a:hover, 
+	.navbar-inverse .navbar-nav > .active > a:focus {
+	    color: #fff;
+	    /*background-color: #438eb9;*/
+	   background: linear-gradient(to bottom right, #997ae1 , #2dd7cc);
+	}
+	.navbar-inverse .navbar-nav > .open > a, 
+	.navbar-inverse .navbar-nav > .open > a:hover, 
+	.navbar-inverse .navbar-nav > .open > a:focus {
+	    color: #fff;
+	    /*background-color: #2a68c9;*/
+	    background: linear-gradient(to bottom right, #997ae1 , #2dd7cc);
+	}
+	.panel-primary > .panel-heading {
+	    color: #fff;
+	    /*background-color: #337ab7;*/
+	   background: linear-gradient(to bottom right, #997ae1 , #2dd7cc);
+	    border-color: #337ab7;
+	}
+	
+	.table-hover > tbody > tr:hover {
+	    background-color: #FFFAF0;
+	}
+	
+	.pie-chart{
+		width: 580px;
+		height: 400px;
+		float: left;
+		margin-top: 40px;
+		border: 1px solid #CCCCCC;
+		border-radius: 5px;
+		margin-left: 10px;
+		box-shadow: rgba(0, 0, 0, 0.12) 0px 2px 4px 0px, rgba(0, 0, 0, 0.24) 0px 0px 6px 0px;
+	}
+    </style>
+</head>
+<body>
+	<div class="navbar navbar-inverse">
+	  	<div class="navbar-header">
+			<a class="navbar-brand" href="/qahome/">
+	        	<img alt="Brand" src="/static/common/images/yiqa2.png">
+	      	</a>
+	      
+	    </div>
+	    <div class="navbar-collapse collapse" role="navigation">
+	      <ul class="nav navbar-nav">
+	      	{% if menu_active == "webui" %}
+			<li class="active">
+			{% else %}
+			<li class="">
+			{% endif %}
+				<a href="/qahome/webui/" target="_blank">
+				WEB自动化
+				</a>
+			</li>
+	        {% if menu_active == "androidui" %}
+			<li class="active">
+			{% else %}
+			<li class="">
+			{% endif %}
+				<a href="/qahome/androidui/" target="_blank">
+				Android自动化
+				</a>
+			</li>
+	        {% if menu_active == "iosui" %}
+			<li class="active">
+			{% else %}
+			<li class="">
+			{% endif %}
+				<a href="/qahome/webui/" target="_blank">
+				IOS自动化
+				</a>
+			</li>
+	        <li>
+				<a href="http://yyw-qa:9000/html/web/views/project.html" target="_blank">
+				HTTP自动化
+				</a>
+			</li>
+	        <li>
+				<a href="http://dubbotest.yiyaowang.com/index.html" target="_blank">
+				DubboTest平台
+				</a>
+			</li>
+	        {% if menu_active == "tools" %}
+			<li class="active">
+			{% else %}
+			<li class="">
+			{% endif %}
+				<a href="/qahome/webui/" target="_blank">
+				小工具集
+				</a>
+			</li>
+	      </ul>
+	      <ul class="nav navbar-nav navbar-right hidden-sm">
+			 <li class="dropdown">
+                <a href="#" class="dropdown-toggle" data-toggle="dropdown" style="min-width: 160px;">
+					<i class="glyphicon glyphicon-user"></i> 
+					{% if user.last_name and user.first_name %}
+					{{user.last_name}}{{user.first_name}}
+					{% else %}
+					{{user.username}}
+					{% endif %}
+                    <b class="caret"></b>
+                </a>
+                <ul class="dropdown-menu">
+                    <li>
+                        <a id="action-1" href="#">个人信息</a>
+                    </li>
+                    <li>
+                        <a href="/admin/password_change/">修改密码</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a href="/admin/">权限管理</a>
+                    </li>
+                    <li>
+                        <a href="/logout/">退出</a>
+                    </li>
+                </ul>
+           </li>
+			<!-- <li style="line-height: 20px;padding: 15px 20px;">
+				<i class="glyphicon glyphicon-user"></i>欢迎您，{{user.username}}
+			</li>
+			<li>
+				<a href="/logout/">退出</a>
+			</li> -->
+	        
+	      </ul>
+	    </div>
+	</div>
+	<div class="side-container">
+		<div class="left_side">
+			<div class="panel-group" id="accordion">
+			    <div class="panel panel-primary">
+			        <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#collapse_1">
+						测试环境 <i class="glyphicon glyphicon-chevron-down" style="float:right;"></i>
+			        </div>
+			        <div id="collapse_1" class="panel-collapse collapse in">
+			        	<ul class="nav left_menu">
+			        		{% for menu in test_menus %}
+							<li id="menu_{{ menu.id }}">
+								<i class="glyphicon glyphicon-chevron-right"></i>&nbsp; {{ menu.name }}
+							</li>
+							{% endfor %}
+						</ul>
+			            <!--<div class="panel-body" style="padding:0px;">
+							<div class="panel-group" id="menus_1">
+								<div class="panel panel-default">
+							        <div class="panel-heading" data-toggle="collapse" data-parent="#menus_1" href="#second_1">
+										<i class="glyphicon glyphicon-plus"></i>&nbsp; 药城PC端
+										<i class="glyphicon glyphicon-chevron-down" style="float:right;"></i>
+							        </div>
+							        <div id="second_1" class="panel-collapse collapse in">
+							            <div class="panel-body" style="padding:0px;">
+											<ul class="nav left_menu">
+												<li class="">
+													<a href="/qahome/">
+														<i class="glyphicon glyphicon-plus"></i>&nbsp; 药城搜索
+													</a>
+												</li>
+												<li class="">
+													<a href="/qahome/">
+														<i class="glyphicon glyphicon-plus"></i>&nbsp; 药城搜索
+													</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+								<div class="panel panel-default">
+							        <div class="panel-heading" data-toggle="collapse" data-parent="#menus_1" href="#second_2">
+										<i class="glyphicon glyphicon-plus"></i>&nbsp; 菜单1 
+										<i class="glyphicon glyphicon-chevron-down" style="float:right;"></i>
+							        </div>
+							        <div id="second_2" class="panel-collapse collapse in">
+							            <div class="panel-body" style="padding:0px;">
+											<ul class="nav left_menu">
+												<li class="">
+													<a href="/qahome/">
+														<i class="glyphicon glyphicon-plus"></i>&nbsp; 药城搜索
+													</a>
+												</li>
+												<li class="">
+													<a href="/qahome/">
+														<i class="glyphicon glyphicon-plus"></i>&nbsp; 药城搜索
+													</a>
+												</li>
+											</ul>
+										</div>
+									</div>
+								</div>
+							</div>
+			            </div>-->
+			        </div>
+			    </div>
+			    <div class="panel panel-primary">
+			        <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#collapse_2">
+						生产环境 <i class="glyphicon glyphicon-chevron-down" style="float:right;"></i>
+			        </div>
+			        <div id="collapse_2" class="panel-collapse collapse">
+			        <div class="panel-body" style="padding:0px;">
+			            <ul class="nav left_menu">
+			            	{% for menu in prd_menus %}
+							<li id="menu_{{ menu.id }}">
+								<i class="glyphicon glyphicon-chevron-right"></i>&nbsp; {{ menu.name }}
+							</li>
+							{% endfor %}
+						</ul>
+			        </div>
+			        </div>
+			    </div>
+			    <!--<div class="panel panel-default">
+			        <div class="panel-heading" data-toggle="collapse" data-parent="#accordion" href="#collapse_3">
+						预发布环境 <i class="glyphicon glyphicon-chevron-down" style="float:right;"></i>
+			        </div>
+			        <div id="collapse_3" class="panel-collapse collapse">
+			        <div class="panel-body" style="padding:0px;">
+			            <ul class="nav left_menu">
+							<li class="active">
+								<i class="glyphicon glyphicon-chevron-right"></i>&nbsp; PC端
+							</li>
+							<li class="">
+								<i class="glyphicon glyphicon-chevron-right"></i>&nbsp; H5端
+							</li>
+							<li class="">
+								<i class="glyphicon glyphicon-chevron-right"></i>&nbsp; Android端
+							</li>
+							<li class="">
+								<i class="glyphicon glyphicon-chevron-right"></i>&nbsp; IOS端
+							</li>
+						</ul>
+			        </div>
+			        </div>
+			    </div>-->
+			</div>
+		</div>
+		<div class="right_side">
+			<div class="tab-content" id="right_side_content">
+				<!--<div class="main-section">
+					<div style="color: #888888;" id="right_head">
+						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;
+						<span style="font-size: 18px;text-decoration: underline;">UI自动化</span> &gt;
+						<span style="font-size: 16px;text-decoration: underline;">测试环境 </span> &gt;
+						<span style="font-size: 14px;text-decoration: underline;">PC端</span>
+					</div>
+					<hr style="margin-top: 6px;margin-bottom: 10px;" />
+                	<form class="form">
+                		<div class="space-4"></div>
+						<div class="row">
+							<div class="col-md-2 col-sm-2" id="">
+								<label class="control-label" for="moduleid"> 
+								<span class="required">*</span>所属模块：</label>
+							</div>
+							<div class="col-md-3 col-sm-3" id="">
+		             			<select class="form-control" id="moduleid">
+		             				<option value="">请选择所属模块</option>
+		             				<option value="1">首页</option>
+		             				<option value="2">购物车</option>
+		             			</select>
+		            		</div>
+		            		<div class="col-md-2 col-sm-2" id="">
+								<label class="control-label" for="keywords"> 
+								<span class="required">*</span>用例功能关键词：</label>
+							</div>
+							<div class="col-md-3 col-sm-3" id="">
+		             			<input class="form-control" id="keywords" placeholder="请输入用例功能关键词"> </input>
+		            		</div>
+						</div>
+						<div class="row">
+		            		<div class="col-md-2 col-sm-2" id="">
+								<label class="control-label" for="tapdid"> 
+								<span class="required">*</span>TAPD用例ID：</label>
+							</div>
+							<div class="col-md-3 col-sm-3" id="">
+		             			<input class="form-control" type="number" maxlength="10" id="tapdid" placeholder="请输入TAPD用例ID"> </input>
+		            		</div>
+		            		<div class="col-md-2 col-sm-2">
+			                   	
+			               	</div>
+		            		<div class="col-md-3 col-sm-3">
+			                   	<button class="btn btn-primary" id="submit" type="button" style="float: right;">
+									查询
+			                  	</button>
+			               	</div>
+						</div>
+                	</form>
+                	
+                	<table class="table table-bordered table-striped">
+	                	<thead>
+	                		<tr>
+	                			<th>
+	                				<input type="checkbox" id="id_0" value="" />
+	                			</th>
+	                			<th>序号</th>
+	                			<th>所属模块</th>
+	                			<th>用例功能描述</th>
+	                			<th>路径</th>
+	                			<th>TAPD用例ID</th>
+	                			<th>含购物车或订单操作</th>
+	                			<th>是否可并行</th>
+	                			<th>预估运行时间</th>
+	                			<th>状态</th>
+	                			<th>操作</th>
+	                		</tr>
+	                	</thead>
+	                	<tbody>
+	                		<tr>
+	                			<td>
+	                				<input type="checkbox" id="id_1" value="" />
+	                			</td>
+	                			<td>1</td>
+	                			<td>首页</td>
+	                			<td>首页轮播图链接页面显示正常</td>
+	                			<td>testcase\Test_CategoryPage.py</td>
+	                			<td>
+	                				<button class="btn btn-link" type="button" onclick="showTAPDCase(12564)">12564</button>
+	                			</td>
+	                			<td>是</td>
+	                			<td>是</td>
+	                			<td>1分</td>
+	                			<td>未执行</td>
+	                			<td>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="runTestCase(1)">运行</button>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="showTestCase(1)">查看代码</button>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="deleteTestCase(1)">删除用例</button>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="showRunHistory(1)">运行记录</button>
+	                			</td>
+	                		</tr>
+	                		<tr>
+	                			<td>
+	                				<input type="checkbox" id="id_2" value="" />
+	                			</td>
+	                			<td>2</td>
+	                			<td>首页</td>
+	                			<td>首页轮播图链接页面显示正常</td>
+	                			<td>testcase\Test_CategoryPage.py</td>
+	                			<td>
+	                				<button class="btn btn-link" type="button" onclick="showTAPDCase(12564)">12564</button>
+	                			</td>
+	                			<td>是</td>
+	                			<td>是</td>
+	                			<td>1分</td>
+	                			<td>执行中</td>
+	                			<td>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="runTestCase(1)">运行</button>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="showTestCase(1)">查看代码</button>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="deleteTestCase(1)">删除用例</button>
+	                				<button class="btn btn-xs btn-link" type="button" onclick="showRunHistory(1)">运行记录</button>
+	                			</td>
+	                		</tr>
+	                	</tbody>
+	                	
+	                </table>
+                </div> -->
+				
+				<div class="tab-pane fade in active" id="home_page">
+					<div class="cards-container" style="text-align: center;">
+						 <div id="myChart1" class="pie-chart cards-box">
+						 	
+						 </div>
+						 <div id="myChart2" class="pie-chart cards-box">
+						 	
+						 </div>
+						 <div class="clear">
+						 	
+						 </div>
+						<!--<div class="alert alert-info">
+						<i class="glyphicon glyphicon-ok"></i>&nbsp; 欢迎使用 质量平台！
+						</div>-->
+						<!--<img src="/static/common/images/jiqiren2.jpg" /> -->
+						<!--<img src="/static/common/images/gaokeji3.jpg"/>-->
+					</div>
+				</div>
+				
+			</div>
+		</div>
+	</div>
+	<div class="main-footer">
+		质量管理部  &copy; 2019
+	</div>
+
+	<script type="text/javascript">
+		var data1 = [
+		                {value:81, name:'PC端'},
+		                {value:10, name:'H5端'},
+		                {value:26, name:'Android端'},
+		                {value:202, name:'IOS端'}
+		            ]
+		
+		var option1 = {
+		    title : {
+		        text: 'UI自动化用例汇总',
+		        subtext: '测试环境',
+		        x:'center'
+		    },
+		    tooltip : {
+		        trigger: 'item',
+		        formatter: "{a} <br/>{b} : {c} ({d}%)"
+		    },
+		    legend: {
+		        orient : 'vertical',
+		        x : 'left',
+		        data:['PC端','H5端','Android端','IOS端']
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            dataView : {show: true, readOnly: true},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    series : [
+		        {
+		            name:'web端用例',
+		            type:'pie',
+		            radius : '55%',
+		            center: ['50%', '60%'],
+		            data:data1
+		        }
+		    ]
+		};
+		var myChart1 = echarts.init(document.getElementById('myChart1'));
+		myChart1.setOption(option1);
+		var data2 = [
+		                {value:30, name:'PC端'},
+		                {value:8, name:'H5端'},
+		                {value:28, name:'Android端'},
+		                {value:11, name:'IOS端'}
+		            ]
+		var option2 = {
+		    title : {
+		        text: 'UI自动化用例汇总',
+		        subtext: '生产环境',
+		        x:'center'
+		    },
+		    tooltip : {
+		        trigger: 'item',
+		        formatter: "{a} <br/>{b} : {c} ({d}%)"
+		    },
+		    legend: {
+		        orient : 'vertical',
+		        x : 'left',
+		        data:['PC端','H5端','Android端','IOS端']
+		    },
+		    toolbox: {
+		        show : true,
+		        feature : {
+		            dataView : {show: true, readOnly: true},
+		            restore : {show: true},
+		            saveAsImage : {show: true}
+		        }
+		    },
+		    calculable : true,
+		    series : [
+		        {
+		            name:'web端用例',
+		            type:'pie',
+		            radius : '55%',
+		            center: ['50%', '60%'],
+		            data:data2
+		        }
+		    ]
+		};
+		var myChart2 = echarts.init(document.getElementById('myChart2'));
+		myChart2.setOption(option2);
+		                    
+		
+		$('.left_menu>li').on('click',function(){
+			var cid=$(this).attr('id').split('_')[1]
+			$('.left_menu>li').removeClass('active')
+			$(this).addClass('active')
+			console.log('cid: '+cid)
+			desplay_collection_content(cid)
+		})
+		
+		function query_testcase(){
+			var index=layer.load()
+			var collectionid=$('#collectionid').attr('data-id');
+			var moduleid=$('#moduleid').val().trim();
+			var tapdid=$('#tapdid').val().trim();
+			var keyword=$('#keywords').val().trim();
+			var params={
+				"collectionid":collectionid,
+				"moduleid":moduleid?moduleid:'',
+				"tapdid":tapdid?tapdid:'',
+				"keyword":keyword?keyword:''
+			}
+			console.log(params)
+			$.ajax({
+		        type: 'post',
+		        method: 'POST',
+		        url: '/qahome/gettestcases/',
+		        data: params,
+		        contentType:"application/x-www-form-urlencoded",
+		        success: function(result){
+		        	console.log(result)
+		        	var data=result.data;
+		        	var html=''
+	                
+		        	if(data){
+		        		$('#case_total').html(data.length.toString())
+		        		html=renderTbody(data,html)	
+		        	}else{
+		        		$('#case_total').html('0')
+		        	}
+		        	
+	        		$('#tc_body').html(html)
+	        		layer.close(index)
+				}
+		    })
+		}
+		
+		function desplay_collection_content(cid){
+			var index=layer.load()
+			var params={
+				"collectionid":cid
+			}
+			$.ajax({
+		        type: 'post',
+		        method: 'POST',
+		        url: '/qahome/collectioninfo/',
+		        data: params,
+		        contentType:"application/x-www-form-urlencoded",
+		        success: function(result){
+		        	console.log(result)
+		        	var coll_name=result.collection.name;
+		        	var run_env=result.collection.run_env==2?'生产环境':'测试环境'
+		        	var data=result.testcases;
+		        	var test_modules=result.testmodule;
+		        	var case_total;
+		        	
+		        	if (data) {
+		        		case_total='<div>用例总数：<span id="case_total">'+data.length+'</span></div>'
+		        	}else{
+		        		case_total='<div>用例总数：<span id="case_total">0</span></div>'
+		        	}
+		        	var module_options='';
+		        	for(var i=0;i<test_modules.length;i++){
+		        		module_options+='<option value="'+test_modules[i].id+'">'+test_modules[i].name+'</option>'
+		        	}
+		        	var html=`<div class="main-section">
+					<div style="color: #888888;" id="right_head">
+						<i class="glyphicon glyphicon-folder-open"></i>&nbsp;&nbsp;
+						<span style="font-size: 18px;text-decoration: underline;">UI自动化</span> &gt;
+						<span style="font-size: 16px;text-decoration: underline;">${run_env} </span> &gt;
+						<span style="font-size: 14px;text-decoration: underline;" id="collectionid" data-id="${cid}">${coll_name}</span>
+					</div>
+					<hr style="margin-top: 6px;margin-bottom: 10px;" />
+                	<form class="form">
+                		<div class="space-4"></div>
+						<div class="row">
+							<div class="col-md-2 col-sm-2" id="">
+								<label class="control-label" for="moduleid"> 
+								所属模块：</label>
+							</div>
+							<div class="col-md-3 col-sm-3" id="">
+		             			<select class="form-control" id="moduleid">
+		             				<option value="">请选择所属模块</option>
+		             				${module_options}
+		             			</select>
+		            		</div>
+		            		<div class="col-md-2 col-sm-2" id="">
+								<label class="control-label" for="keywords"> 
+								用例功能关键词：</label>
+							</div>
+							<div class="col-md-3 col-sm-3" id="">
+		             			<input class="form-control" id="keywords" placeholder="请输入用例功能关键词"> </input>
+		            		</div>
+						</div>
+						<div class="row">
+		            		<div class="col-md-2 col-sm-2" id="">
+								<label class="control-label" for="tapdid"> 
+								TAPD用例ID：</label>
+							</div>
+							<div class="col-md-3 col-sm-3" id="">
+		             			<input class="form-control" type="number" maxlength="10" id="tapdid" placeholder="请输入TAPD用例ID"> </input>
+		            		</div>
+		            		<div class="col-md-2 col-sm-2">
+			                   	
+			               	</div>
+		            		<div class="col-md-3 col-sm-3">
+			                   	<button class="btn btn-primary" id="query_case" type="button" style="float: right;" onclick="query_testcase()">
+									查询
+			                  	</button>
+			               	</div>
+						</div>
+                	</form>
+                	${case_total}
+                	<table class="table table-bordered table-striped table-hover">
+	                	<thead>
+	                		<tr class="center-th">
+	                			<th>
+	                				<input type="checkbox" id="check_0" value="" />
+	                			</th>
+	                			<th>序号</th>
+	                			<th>所属模块</th>
+	                			<th style="width:320px;">用例功能描述</th>
+								
+	                			<th>TAPD用例ID</th>
+	                			<th>标记</th>
+	                			<th>
+	                			  购物操作<i class="glyphicon glyphicon-question-sign" style="color:red" data-toggle="tooltip" title="包含购物车操作、订单操作"></i> 
+	                			</th>
+	                			
+	                			<th>
+	                			  平均时间<i class="glyphicon glyphicon-question-sign" style="color:red" data-toggle="tooltip" title="根据历史运行记录计算出的平均时间"></i>
+	                			</th>
+	                			<th>操作</th>
+	                		</tr>
+	                	</thead>
+	                	<tbody id="tc_body">`
+								
+					
+		        	if(data){
+		        		html=renderTbody(data,html)
+		        	}
+		        	
+		        	html+='</tbody></table></div>'
+	        		$('#right_side_content').html(html)
+	        		layer.close(index)
+		        },
+		        error:function (error) {
+		            console.log(error);
+		            alert(error);
+		        }
+		    }); 
+	}
+		function renderTbody(data,html){
+			/*
+			 <th style="width:300px;">路径</th>
+			 <th>状态</th>
+			 					<th>
+	                			能否并行<i class="glyphicon glyphicon-question-sign" style="color:red" data-toggle="tooltip" title="同时运行是否会相互影响"></i> 
+	                			</th>
+			 
+			 ////// <th style="width:100px;">路径</th>
+			////html+='<td class="multi-lines">'+data[i].py_name+'</td>'
+			//html+='<td>'+(data[i].run_status||'-')+'</td>'
+			 */
+			for(var i=0;i<data.length;i++){
+        			
+        		html+='<tr>'
+        		html+='<td><input type="checkbox" id="check_'+data[i].id+'" value="" /></td>'
+        		html+='<td>'+(i+1)+'</td>'
+				html+='<td class="multi-lines">'+(data[i].module_name||'-')+'</td>'
+        		html+='<td class="multi-lines">'+data[i].py_desc+'</td>'
+        		
+        		
+        		if(data[i].tapd_id){
+					html+='<td class="center"><span class="link" data-toggle="tooltip" title="点击查看用例详细步骤" onclick="showTAPDCase(\''+data[i].tapd_id+'\')">'+data[i].tapd_id+'</span></td>'
+				}else{
+					html+='<td class="center">-</td>'
+				}
+				html+='<td class="multi-lines">'+(data[i].py_marks.replace(/;/g,'<br />')||'-')+'</td>'
+        		
+        		html+='<td class="center">'+(data[i].cart_order_oprs?'是':'否')+'</td>'
+        		//html+='<td>'+(data[i].is_parallel?'是':'否')+'</td>'
+        		if(data[i].estimate_time){
+        			var avg=data[i].estimate_time;
+        			var estimate_html;
+	        		if (avg>60) {
+	        			var min=Math.round(avg/60);
+	        			var sec=Math.round(avg%60);
+	        			estimate_html=min+'分'+sec+'秒'
+	        		}else{
+	        			estimate_html=avg.toFixed(0)+'秒'
+	        		}
+	        		
+	        		html+='<td class="center"><span id="estimate_'+data[i].id+'">'+estimate_html+'</span> '
+	        	}else{
+	        		html+='<td class="center"><span id="estimate_'+data[i].id+'">-</span> '
+	        	}
+        		html+='<i class="glyphicon glyphicon-refresh" style="color:blue;" onclick="refreshEstimate(\''+data[i].py_name+'\','+data[i].id+')"></i></td>'
+				html+='<td>'
+				html+='<button class="btn btn-xs btn-link" type="button" onclick="showTestCase(\''+data[i].py_name+'\')">代码</button>'
+				html+='<button class="btn btn-xs btn-link" type="button" onclick="runTestCase('+data[i].id+')">运行</button>'
+				html+='<button class="btn btn-xs btn-link" type="button" onclick="editTestCase('+data[i].id+')">编辑</button>'
+				//html+='<button class="btn btn-xs btn-link" type="button" onclick="showRunHistory('+data[i].id+')">运行历史</button>'+'</td>'
+				html+='</tr>'
+        	}
+			return html
+		}
+		function refreshEstimate(pyname,tid){
+			//layer.alert(tid+'刷新平均运行时间：待开发')
+			//layer.alert(tid)
+			var index=layer.load()
+			var params={
+				"py_name":pyname
+			}
+			$.ajax({
+		        type: 'post',
+		        method: 'POST',
+		        url: '/qahome/updateestimate/',
+		        data: params,
+		        contentType:"application/x-www-form-urlencoded",
+		        success: function(result){
+		        	console.log(result)
+		        	var avg=result.data.avg;
+		        	var estimate_html='-'
+		        	if(avg){
+		        		console.log(avg.toFixed(2))
+		        		if (avg>60) {
+		        			var min=Math.round(avg/60);
+		        			var sec=Math.round(avg%60);
+		        			estimate_html=min+'分'+sec+'秒'
+		        		}else{
+		        			estimate_html=avg.toFixed(0)+'秒'
+		        		}
+		        		
+		        		
+		        		$('#estimate_'+tid).html(estimate_html)
+		        	}
+	                
+	        		
+	        		layer.close(index)
+				}
+		    })
+		}
+		function runTestCase(tid){
+			layer.alert(tid+'运行用例：待开发')
+		}
+		function showTestCase(pyname){
+			layer.alert(pyname)
+			
+		}
+		function editTestCase(tid){
+			layer.alert(tid+'编辑用例：待开发')
+		}
+		function deleteTestCase(tid){
+			layer.alert(tid+'删除用例：待开发')
+		}
+		function showRunHistory(tid){
+			layer.alert(tid+'运行历史记录：待开发')
+		}
+		
+		function showTAPDCase(tid){
+			var tapd_case=`<div style="padding: 50px; line-height: 22px; background-color: #393D49; color: #fff; font-weight: 300;">
+				<h3>【首页】首页广告展示 </h3>
+				<div class="description_div editor-content" id="description_div">
+					<h4 class="tcase-content-title">
+						前置条件
+					</h4>
+					<div class="tcase-content-description">
+						新客
+						<div>app5.6.3及以上</div>
+						<div><br></div>
+					</div>
+					<h4 class="tcase-content-title">
+						用例步骤
+					</h4>
+					<div class="tcase-content-description">
+						1、打开app，已登录
+						<div>2、再次访问首页</div>
+					</div>
+					<h4 class="tcase-content-title">
+						预期结果
+					</h4>
+					<div class="tcase-content-description">
+						2、提示“XXXXXXXX XXXXXX”
+					</div>	
+				</div>
+				</div>`
+			
+		    layer.open({
+		        type: 1
+		        ,title: false //不显示标题栏
+		        ,closeBtn: false
+		        ,area: '500px;'
+		        ,shade: 0.8
+		        ,id: 'LAY_layuipro' //设定一个id，防止重复弹出
+		        ,btn: ['去TAPD查看', '关闭']
+		        ,btnAlign: 'c'
+		        ,moveType: 1 //拖拽模式，0或者1
+		        ,content: tapd_case
+		        ,success: function(layero){
+		          var btn = layero.find('.layui-layer-btn');
+		          btn.find('.layui-layer-btn0').attr({
+		            href: 'https://xxx.com.cn'
+		            ,target: '_blank'
+		          });
+		        }
+		      });
+		}
+	</script>
+</body>
+</html>

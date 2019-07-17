@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+	<title>首页 - 质量平台</title>
+	<link rel="shortcut icon"href="/static/common/images/yyw_jituan_logo_1.ico">
+	<link rel="stylesheet" type="text/css" href="/static/common/css/bootstrap-3.3.7.css"/>
+	<link rel="stylesheet" type="text/css" href="/static/common/css/public.css"/>
+	<script src="/static/common/js/jquery-3.3.1.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/common/js/bootstrap-3.3.7.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/common/js/layer-v3.1.1/layer.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/static/common/js/public.js" type="text/javascript" charset="utf-8"></script>
+    <style>
+    	
+    	@media (min-width: 1200px)
+		.container {
+		    width: 100%;
+		}
+		
+		@media (min-width: 992px)
+		.container {
+		    width: 970px;
+		}
+		@media (min-width: 768px)
+		.container {
+		    width: 750px;
+		}
+		.container {
+			width: 100%;
+		}
+    	.trans-bg{
+			background-color: #2dd7cc;
+		    width: 100%;
+		    height: 100%;
+		    
+			padding: 0px;
+			background: -webkit-linear-gradient(left top, #997ae1 , #2dd7cc); /* Safari 5.1 - 6.0 */
+			background: -o-linear-gradient(bottom right, #997ae1, #2dd7cc); /* Opera 11.1 - 12.0 */
+			background: -moz-linear-gradient(bottom right, #997ae1, #2dd7cc); /* Firefox 3.6 - 15 */
+			background: linear-gradient(to bottom right, #997ae1 , #2dd7cc); /* 标准的语法 */
+		 /*#6190E8 */
+    	}
+    	.row{
+    		margin-left: 0px;
+    		margin-right: 0px;
+    	}
+		.bigbox{
+			position: relative;
+			padding: 70px 40px;
+			color:white;
+		}
+		.back-box1{
+			position: absolute;
+			top: 130px;
+			left: 10px;
+			width: 340px;
+			height: 270px;
+			border-radius: 5px;
+			background-color: rgba(107,200,215,0.8);
+		}
+		.back-box2{
+			position: absolute;
+			top: -15px;
+			left: 20px;
+			width: 300px;
+			height: 300px;
+			border-radius: 5px;
+			background-color: rgba(183,216,223,0.8);
+		}
+		.back-box3{
+			position: absolute;
+			top: -20px;
+			left: 20px;
+			width: 260px;
+			height: 340px;
+			padding: 10px 20px;
+			color: #423b6f;
+			border: 1px solid #ccc;
+			border-radius: 5px;
+			background-color: #eff8f9;
+			/*box-shadow: 10px 10px 5px #AAAAAA;*/
+		}
+		.back-box3>form{
+			margin-top: 40px;
+		}
+		.back-box3>form>.input-group{
+			margin-top: 10px;
+		}
+		.multi-cards{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			right: 0px;
+			bottom: 0px;
+			padding: auto;
+			width: 100px;
+			height: 200px;
+			border: 1px solid #ccc;
+			text-align: center;
+			
+		}
+    </style>
+</head>
+<body style="min-height: 500px;">
+	
+	<div class="container trans-bg">
+		<div class="row">
+			<div class="col-md-7 bigbox">
+				<div class="" style="padding-top: 40px;padding-left: 40px;">
+					<h1>我们用</h1>
+					<h1>大眼睛看世界</h1>
+					<div style="margin-top: 40px;">
+						<p>有两种类型的人会告诉你，在这个世界上你不能</p>
+						<p>有所作为：那些害怕尝试的人和那些害怕你会成功的人。</p>
+					</div>
+					
+					<!--<div class="space-4"></div>
+					<p>是什么让我们与众不同?</p>-->
+				</div>
+				
+			</div>
+			<div class="col-md-5 bigbox">
+				<div class="back-box1">
+					<div class="back-box2">
+						<div class="back-box3">
+							{% if request.user.is_authenticated %} 
+							<div class="" style="text-align: center;">
+								<i class="glyphicon glyphicon-user" style="font-size: 48px;color: #6190E8;"></i>
+								
+							</div>
+							{% else %}
+							<h2>登录</h2>
+							<p>欢迎使用质量平台</p>
+							<form class="form" action="/qahome/login/" method="post">
+								{% csrf_token %}
+								<div class="space-4"></div>
+								<div style="color:red;margin-bottom:5px;text-align:right;height:24px;">{{ message }}</div>
+								<div class="input-group">
+						            <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+						            <input type="text" class="form-control" name="userName" id="userName" placeholder="请输入用户名">
+						        </div>
+						        <div class="input-group">
+						            <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+						            <input type="password" class="form-control" name="userPassword" id="userPassword" placeholder="请输入密码">
+						        </div>
+						        <div class="row" style="margin-top: 20px;">
+						        	<button type="submit" class="btn btn-default" style="float: right;">登录</button>
+						        </div>
+						        
+							</form>
+							{% endif %}
+							
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+	<script type="text/javascript">
+		$(function(){
+			$('body').css("height",$(document).height())
+		})
+		
+		$(window).resize(function(){
+		    $('body').css("height",$(document).height())
+		});
+		
+	</script>
+</body>
+</html>

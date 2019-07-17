@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>UI自动化平台</title>
+		<link rel="shortcut icon"href="/static/common/images/111.ico">
+		<link rel="stylesheet" type="text/css" href="/static/common/css/bootstrap-3.3.7.css"/>
+		<link rel="stylesheet" type="text/css" href="/static/common/css/public.css"/>
+		<script src="/static/common/js/jquery-3.3.1.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/bootstrap-3.3.7.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/layer-v3.1.1/layer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/public.js" type="text/javascript" charset="utf-8"></script>
+		<style>
+		.pre-normal{
+			font-size:14px;
+			background-color:transparent;
+			border:none;
+		}
+		</style>
+	</head>
+	<body>
+		
+		<div class="main-section">
+			<input type="input" class="input" id="donum" />
+			<button class="btn btn-default" onclick="send_params()">click</button>
+		</div>
+	</body>
+	
+	<script type="text/javascript">
+		function send_params(){
+			var donum=$('#donum').val()
+			$.ajax({
+		        type: "POST", 
+		        method:"POST",
+		        url:"/autotest/submit_params/",
+		        contentType:"application/x-www-form-urlencoded",
+		        data:{"donum":donum},
+		        success: function(data){
+		        	console.log(data);
+		        },
+		        error:function (error) {
+		            console.log(error);
+		        }
+		    }); 		
+		}
+	</script>
+</html>
