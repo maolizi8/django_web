@@ -175,7 +175,7 @@ def update_case_estimatetime(request):
     '''更新运行时间'''
     py_name=request.POST['py_name']
     
-    query1 = "SELECT AVG(test_duration) as avg FROM uitest_run_records WHERE test_name='"+py_name+"'"
+    query1 = "SELECT AVG(test_duration) as avg FROM uitest_tests WHERE test_name='"+py_name+"'"
     conn=mysql_opr.get_connection_qadb('qatest')
     rsp_data=mysql_opr.select_from_mysql(conn,query1,total=1)
     if rsp_data['code']==0:
@@ -183,6 +183,49 @@ def update_case_estimatetime(request):
             query2="UPDATE auto_ui_testcase SET estimate_time={0} WHERE py_name='{1}'".format(rsp_data['data']['avg'],
                                                                                               py_name)
             mysql_opr.query_mysql2(conn,query2,close=True)
+    return JsonResponse(rsp_data, safe=False) 
+
+
+'''UI自动化的测试报告'''
+def uitest_report(request,jobname='',buildid=-1):
+    '''UI自动化测试报告页面'''
+    if jobname and buildid!=-1:
+        conn=connect_db.get_connection(dbinfo["host"],dbinfo["port"], "qateam",dbinfo["user"],dbinfo["password"])
+        #query1 = "SELECT * FROM uitest_collect WHERE jk_jobname='"+jobname+"' AND jk_buildid='"+str(buildid)+"'" # ORDER BY id DESC LIMIT 1
+        query1 = """SELECT a.*,b.jk_desc FROM uitest_collect a
+                    LEFT JOIN auto_jk_jobs b
+                    ON a.jk_jobname=b.jk_name
+                    WHERE jk_jobname='{}' AND jk_buildid='{}'
+                    """.format(jobname,buildid)
+        rsp_data1=connect_db.select_from_mysql(conn,query1,1)
+        
+        query2 = "SELECT * FROM uitest_tests WHERE jk_jobname='"+jobname+"' AND jk_buildid='"+str(buildid)+"' ORDER BY test_result"
+        rsp_data2=connect_db.select_from_mysql(conn,query2,0)
+        rend_data={
+            "testCollect":rsp_data1["data"],
+            "testTests":rsp_data2["data"]
+            }
+    else:
+        rend_data={
+            "testCollect":[],
+            "testTests":[]
+            }
+    return render(request, 'uitest_report.html',rend_data)
+
+@api_view(['post'])
+def get_uitest_errorinfo(request):
+    '''UI自动化测试-失败的信息
+    '''
+    testid=request.POST['testid']
+    query = '''select e.test_log,e.error_png from uitest_tests_errors as e
+                inner join uitest_tests as t on 
+                t.test_name = e.test_name 
+                and t.jk_buildid = e.jk_buildid 
+                and t.jk_jobname = e.jk_jobname 
+                and t.id={}
+    '''.format(testid)
+    conn=connect_db.get_connection(dbinfo["host"],dbinfo["port"], "qateam",dbinfo["user"],dbinfo["password"])
+    rsp_data=connect_db.select_from_mysql(conn,query,1)
     return JsonResponse(rsp_data, safe=False) 
 
 #展示主页

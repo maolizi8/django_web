@@ -1,0 +1,295 @@
+{% load extra_tags %}
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>UI自动化-测试报告</title>
+		<link rel="shortcut icon"href="/static/common/images/111.ico">
+		<link rel="stylesheet" type="text/css" href="/static/common/css/bootstrap-3.3.7.css"/>
+		<link rel="stylesheet" type="text/css" href="/static/common/css/public.css"/>
+		<link rel="stylesheet" href="/static/common/js/jstree/dist/themes/default/style.min.css" />
+		<script src="/static/common/js/jquery-3.3.1.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/jquery.serializejson-2.9.0.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/bootstrap-3.3.7.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/layer-v3.1.1/layer.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/public.js" type="text/javascript" charset="utf-8"></script>
+		<script src="/static/common/js/jstree/dist/jstree.min.js" type="text/javascript" charset="utf-8"></script>
+		<style>
+			.table {
+			    padding: 10px;
+			    display: table;
+			    border-collapse: collapse;
+			    border-spacing: 2px;
+			    border: 1px solid #cccccc;
+			    border-radius: 5px;
+			    box-shadow: 0 2px 4px 0 rgba(0,0,0,.12), 0 0 6px 0 rgba(0,0,0,.04);
+			    background-color: white;
+			}
+			.table th, .table td {
+			    vertical-align: middle;
+			    padding: 5px;
+			    /* text-align: center; */
+			    border: 1px solid #cccccc;
+			}
+			.table th {
+			    background-color: #E0EEEE;
+			}
+			.toggledetail{
+				font-size:70%;
+				color: #BBB;
+				font-style: italic;
+				cursor: pointer;
+			}
+			.testlog{
+			    float:left;
+			    display: block;
+			    min-width:500px;
+			    width: calc(100% - 340px);
+			    overflow-x: scroll;
+			    height:320px;
+			    overflow-y: scroll;
+			    padding: 5px;
+			    white-space: pre-wrap;
+			    background-color: #f5f5f5;
+    			border: 1px solid #ccc;
+			}
+			.testlog2{
+				height:320px;
+			    overflow-y: scroll;
+			    padding: 5px;
+			    white-space: pre-wrap;
+			    background-color: #f5f5f5;
+    			border: 1px solid #ccc;
+			}
+			.errorimg{
+				float: right;
+			    margin-left: 5px;
+			    width: 320px;	
+			    height:320px;
+			}
+			.errorimg img{
+				border: 1px solid #e6e6e6;
+				width: 320px;	
+			    height:280px;
+			}
+			.error{
+				color:red;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="main-section">
+			
+		{% if testCollect %}
+			<h3>{{ testCollect.jk_desc }}&nbsp;&nbsp;&nbsp;&nbsp;
+			{% if testCollect.is_end == 0 %}
+			<span style="color: blue;">【脚本仍在运行中...】</span>
+			{% endif %}
+			<span style="font-size: 14px;" >
+				<a href="http://yyw-0345:8080/jenkins/job/{{ testCollect.jk_jobname }}/{{ testCollect.jk_buildid }}/console" target="_blank">
+				&rarr;&nbsp;&nbsp;jenkins地址</a>（{{ testCollect.htmlhead }}）
+			</span>
+			</h3>
+			<p>
+				开始于：<span style="color: blue;">{{ testCollect.create_time }}</span>
+				{% if testCollect.is_end == 1 %}
+					， 用例执行总数：<span style="color: blue;">{{ testCollect.run_total }}</span>， 
+					总耗时：
+					{% if testCollect.duration > 3600 %}
+					<span style="color: blue;">
+						{% quotient testCollect.duration 3600 as h %}
+						{% widthratio h 1 -3600 as th %}
+						{% quotient testCollect.duration|add:th 60 as m %}
+						{% remainder testCollect.duration|add:th 60 as s %}
+						{{ h }} 小时 {{ m }} 分 {{ s }} 秒 
+					</span>
+					{% elif testCollect.duration > 60 %}
+					<span style="color: blue;">
+						{% quotient testCollect.duration 60 as m %}
+						{% remainder testCollect.duration 60 as s %}
+						{{ m }} 分 {{ s }} 秒 
+					</span>
+				{% else %}
+				<span style="color: blue;">{{ testCollect.duration }} 秒</span>
+				{% endif %}
+				{% endif %}
+				</p>
+			<p>
+				
+			</p>
+			
+			<table class="table table-bordered" style="width:300px;">
+				<thead style="background-color: #E0EEEE;">
+					<tr>
+						<th class="">失败</th>
+						<th class="">执行总数</th>
+						<th class="">成功</th>
+						<th class="">跳过</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							{% if testCollect.fail_total > 0 %}
+							<span style="color:red;">{{ testCollect.fail_total }}</span>
+							{% else %}
+							<span>{{ testCollect.fail_total }}</span>
+							{% endif %}
+						</td>
+						<td>
+							{{ testCollect.run_total }}
+						</td>
+						<td>
+							{{ testCollect.pass_total }}
+						</td>
+						<td>
+							{{ testCollect.skip_total }}
+						</td>
+					</tr>
+					
+				</tbody>
+				
+			</table>
+			
+			
+		{% else %}
+		    <h3>UI自动化-测试报告</h3>
+		{% endif %}
+			<div style="clear"></div>
+			
+			<table class="table table-bordered table-hover">
+				<thead>
+					<tr>
+						<th class="">ID</th>
+						<th class="">功能描述</th>
+						<th class="" style="    width: 45px;">状态</th>
+						<th class="">运行耗时/<span style="color: blue;">秒</span></th>
+						<th class="" >脚本名</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% if testTests %}
+					{% for d in testTests %}
+					<tr id="test_{{d.id}}">
+						<td>
+							<!--{{ d.id }}-->
+							<span id="togglebtn" class="toggledetail" onclick="toggle_display_log({{ d.id }},'{{ d.test_result }}')">
+							详情 &or;
+							</span>
+						</td>
+						<td>
+							{{ d.test_desc }}
+						</td>
+						<td>
+							{% if d.test_result == "failed" %}
+							<span style="color:red;">失败</span>
+							{% elif d.test_result == "passed" %}
+							<span style="color:green;">成功</span>
+							{% elif d.test_result == "errors" %}
+							<span style="color:red;">报错</span>
+							{% elif d.test_result == "skipped" %}
+							<span style="color:grey;">已跳过</span>
+							{% else %}
+							<span>未知</span>
+							{% endif %}
+							
+							
+						</td>
+						<td>
+							{{ d.test_duration|default:'-' }}
+						</td>
+						<td class="multi-lines">
+							{{ d.test_name }}
+						</td>
+					</tr>
+					<tr id="log_{{d.id}}" class="hidden">
+						<td colspan="6">
+							<div class="testlog2">{{ d.test_log|default:'-'| safe }}</div>
+						</td>
+						<!-- {% if d.error_png %}
+						<td colspan="6">
+							<div class="testlog">{{ d.test_log|default:'-'| safe }}</div>
+							<div class="errorimg">
+								<img src="data:image/png;base64,{{d.error_png}}" />
+							</div>
+						</td>
+						{% else %}
+						<td colspan="6">
+							<div class="testlog2">{{ d.test_log|default:'-'| safe }}</div>
+						</td>
+						{% endif %} -->
+					</tr>
+					{% endfor %}
+				{% else %}
+		    		<tr>
+						<td colspan="6">
+							没有执行记录
+						</td>
+					</tr>
+				{% endif %}
+				</tbody>
+				
+			</table>
+		</div>
+	</body>
+	<script>
+		function toggle_display_log(testid,teststatus){
+			//$('#log_'+testid).toggleClass('hidden') 
+			//console.log($('#log_'+testid).hasClass('hidden'))
+			var hidden=$('#log_'+testid).hasClass('hidden')
+			if(hidden==true){
+				var index=layer.load()
+				if(teststatus=='failed'){
+					$.ajax({
+				        type: "post",
+				        method: "POST",
+				        url: "/uitest_report/get_error_info/",
+				        data: {"testid":testid},
+				        contentType:"application/x-www-form-urlencoded",
+				        success: function(result){
+				        	console.log(result);
+							$('#log_'+testid).empty()
+							var html=''
+				        	if(result.code==0){
+				        		html=`<td colspan="6">
+									<div class="testlog">${result.data.test_log}</div>
+									<div class="errorimg">
+										<img src="data:image/png;base64,${result.data.error_png}" />
+									</div>
+								</td>`;
+				        	}
+				        	else{
+								html=`<td colspan="6">
+									${result.msg}
+								</td>`;
+				        	}
+							$('#log_'+testid).append(html)
+							$('#log_'+testid).toggleClass('hidden') 
+							layer.close(index); 
+				        },
+				        error:function (error) {
+							console.log(error);
+				            layer.alert(error);
+				        }
+				    });
+					
+				}else{
+					$('#log_'+testid).toggleClass('hidden') 
+					layer.close(index); 
+				}
+			}else{
+				$('#log_'+testid).toggleClass('hidden') 
+				layer.close(index); 
+			}
+			
+		}
+		function show_error_html(){
+			layer.open({
+				type: 1,
+				skin: 'layui-layer-rim', 
+				area: ['420px', '240px'],
+				content:"{{ d.error_html|default:'未捕获到源码' }}"
+			})
+		}
+	</script>
+</html>
