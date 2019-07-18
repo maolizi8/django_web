@@ -13,10 +13,17 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import PermissionRequiredMixin
-
-
 from public import mysql_opr
 
+
+def autotest_page(request):
+    return render(request,'autotest.html')
+
+@api_view(['POST'])
+def submit_params(request):
+    if request.method=='POST':
+        donum=request.POST['donum']
+        return  JsonResponse({"donum":donum})
     
 #登录功能
 class Login(View):
@@ -53,16 +60,11 @@ class Logout(View):
         message = '注销成功'
         return render(request,'yiqa_home.html',locals())
         
-#class QAHome(LoginRequiredMixin,View): #登录验证,主要用于比如说直接输入地址情况。
 class QAHome(View):
-    # 如果需要指定单独的跳转，则该类中指定login_url属性
-    # 如果需要指定全局的，则在settings中指定LOGIN_URL属性
-    #login_url = '/login/'#没有登录则指定跳转
     def get(self,request):
         #return render(request,'sign_in.html')
         return render(request,'yiqa_home.html',{'message':''})
-        
-
+    
     def post(self,request):
         userName = request.POST.get('userName')
         userPassword = request.POST.get('userPassword')
@@ -83,29 +85,20 @@ class QAHome(View):
             message = '用户名或密码错误'
 
         return render(request,'yiqa_home.html',locals())
-#     def get(self,request):
-#         #print(request.COOKIES)
-#         #print(locals())
-#         query0 = 'select * from auto_ui_collection where run_env=0'
-#         query1 = 'select * from auto_ui_collection where run_env=2'
-#         conn=mysql_opr.get_connection_qadb('qatest')
-#         test_menus=mysql_opr.select_from_mysql(conn,query0,total=0)['data']
-#         prd_menus=mysql_opr.select_from_mysql(conn,query1,total=0)['data']
-#         print(locals())
-#         return render(request, 'yiqa_home.html', locals())
+
     
 #class UIWeb(LoginRequiredMixin,View): #登录验证,主要用于比如说直接输入地址情况。
 #class UIWeb(View):
 class UIWeb(LoginRequiredMixin,View): #登录验证,主要用于比如说直接输入地址情况
     # 如果需要指定单独的跳转，则该类中指定login_url属性
     # 如果需要指定全局的，则在settings中指定LOGIN_URL属性
-    #login_url = '/login/'#没有登录则指定跳转
+    #login_url = '/qahome/'#没有登录则指定跳转
     def get(self,request):
         #print(request.COOKIES)
         menu_active='webui'
         query0 = 'select * from auto_ui_collection where run_env=0 and ui_sys=0'
         query1 = 'select * from auto_ui_collection where run_env=2 and ui_sys=0'
-        conn=mysql_opr.get_connection_qadb('qatest')
+        conn=mysql_opr.get_connection_qadb('qateam')
         test_menus=mysql_opr.select_from_mysql(conn,query0,total=0)['data']
         prd_menus=mysql_opr.select_from_mysql(conn,query1,total=0)['data']
         #print(locals())
@@ -118,7 +111,7 @@ class UIAndroid(LoginRequiredMixin,View):
         menu_active='androidui'
         query0 = 'select * from auto_ui_collection where run_env=0 and ui_sys=1'
         query1 = 'select * from auto_ui_collection where run_env=2 and ui_sys=1'
-        conn=mysql_opr.get_connection_qadb('qatest')
+        conn=mysql_opr.get_connection_qadb('qateam')
         test_menus=mysql_opr.select_from_mysql(conn,query0,total=0)['data']
         prd_menus=mysql_opr.select_from_mysql(conn,query1,total=0)['data']
         #print(locals())
@@ -130,12 +123,16 @@ def get_collection_info(request):
     collectionid=request.POST['collectionid']
     query0 = 'select name,run_env from auto_ui_collection where id='+str(collectionid)
     #query1 = 'select * from auto_ui_testcase where collection='+str(collectionid)
-    query1 = """SELECT a.*,b.id AS module_id,b.name AS module_name FROM auto_ui_testcase a
-                LEFT JOIN auto_ui_businessmodule b 
-                ON a.business_module=b.id
-                WHERE a.collection="""+str(collectionid)
+    query1 = """SELECT a.*,b.id AS module_id,b.name AS module_name,c.run_total,c.avg FROM auto_ui_testcase a
+            LEFT JOIN auto_ui_businessmodule b 
+            ON a.business_module=b.id
+            LEFT JOIN (
+                SELECT COUNT(id) AS run_total,CAST(AVG(test_duration) AS DECIMAL(10,2)) AS avg,test_name FROM uitest_tests
+              GROUP BY test_name
+            ) c ON a.py_name=c.test_name
+            WHERE a.collection="""+str(collectionid)
     query2 = 'select id,name from auto_ui_businessmodule where collection='+str(collectionid)
-    conn=mysql_opr.get_connection_qadb('qatest')
+    conn=mysql_opr.get_connection_qadb('qateam')
     rsp_data1=mysql_opr.select_from_mysql(conn,query0,total=1)
     rsp_data2=mysql_opr.select_from_mysql(conn,query1,total=0)
     rsp_data3=mysql_opr.select_from_mysql(conn,query2,total=0)
@@ -155,10 +152,14 @@ def query_testcase_list(request):
     print('tapdid:',tapdid)
     print('keyword:',keyword)
     #query1 = 'select * from auto_ui_testcase where collection='+str(collectionid)
-    query1 = """SELECT a.*,b.id AS module_id,b.name AS module_name FROM auto_ui_testcase a
-                LEFT JOIN auto_ui_businessmodule b 
-                ON a.business_module=b.id
-                WHERE a.collection="""+str(collectionid)
+    query1 = """SELECT a.*,b.id AS module_id,b.name AS module_name,c.run_total,c.avg FROM auto_ui_testcase a
+            LEFT JOIN auto_ui_businessmodule b 
+            ON a.business_module=b.id
+            LEFT JOIN (
+                SELECT COUNT(id) AS run_total,CAST(AVG(test_duration) AS DECIMAL(10,2)) AS avg,test_name FROM uitest_tests
+              GROUP BY test_name
+            ) c ON a.py_name=c.test_name
+            WHERE a.collection="""+str(collectionid)
     if tapdid:
         query1+=' and tapd_id='+tapdid
     if moduleid:
@@ -166,7 +167,7 @@ def query_testcase_list(request):
     if keyword:
         query1+=' and py_desc like \'%'+keyword+'%\''
     print('query1:',query1)
-    conn=mysql_opr.get_connection_qadb('qatest')
+    conn=mysql_opr.get_connection_qadb('qateam')
     rsp_data=mysql_opr.select_from_mysql(conn,query1,total=0)
     return JsonResponse(rsp_data, safe=False) 
 
@@ -174,58 +175,14 @@ def query_testcase_list(request):
 def update_case_estimatetime(request):
     '''更新运行时间'''
     py_name=request.POST['py_name']
-    
     query1 = "SELECT AVG(test_duration) as avg FROM uitest_tests WHERE test_name='"+py_name+"'"
-    conn=mysql_opr.get_connection_qadb('qatest')
+    conn=mysql_opr.get_connection_qadb('qateam')
     rsp_data=mysql_opr.select_from_mysql(conn,query1,total=1)
     if rsp_data['code']==0:
         if rsp_data['data']['avg']:
             query2="UPDATE auto_ui_testcase SET estimate_time={0} WHERE py_name='{1}'".format(rsp_data['data']['avg'],
                                                                                               py_name)
             mysql_opr.query_mysql2(conn,query2,close=True)
-    return JsonResponse(rsp_data, safe=False) 
-
-
-'''UI自动化的测试报告'''
-def uitest_report(request,jobname='',buildid=-1):
-    '''UI自动化测试报告页面'''
-    if jobname and buildid!=-1:
-        conn=connect_db.get_connection(dbinfo["host"],dbinfo["port"], "qateam",dbinfo["user"],dbinfo["password"])
-        #query1 = "SELECT * FROM uitest_collect WHERE jk_jobname='"+jobname+"' AND jk_buildid='"+str(buildid)+"'" # ORDER BY id DESC LIMIT 1
-        query1 = """SELECT a.*,b.jk_desc FROM uitest_collect a
-                    LEFT JOIN auto_jk_jobs b
-                    ON a.jk_jobname=b.jk_name
-                    WHERE jk_jobname='{}' AND jk_buildid='{}'
-                    """.format(jobname,buildid)
-        rsp_data1=connect_db.select_from_mysql(conn,query1,1)
-        
-        query2 = "SELECT * FROM uitest_tests WHERE jk_jobname='"+jobname+"' AND jk_buildid='"+str(buildid)+"' ORDER BY test_result"
-        rsp_data2=connect_db.select_from_mysql(conn,query2,0)
-        rend_data={
-            "testCollect":rsp_data1["data"],
-            "testTests":rsp_data2["data"]
-            }
-    else:
-        rend_data={
-            "testCollect":[],
-            "testTests":[]
-            }
-    return render(request, 'uitest_report.html',rend_data)
-
-@api_view(['post'])
-def get_uitest_errorinfo(request):
-    '''UI自动化测试-失败的信息
-    '''
-    testid=request.POST['testid']
-    query = '''select e.test_log,e.error_png from uitest_tests_errors as e
-                inner join uitest_tests as t on 
-                t.test_name = e.test_name 
-                and t.jk_buildid = e.jk_buildid 
-                and t.jk_jobname = e.jk_jobname 
-                and t.id={}
-    '''.format(testid)
-    conn=connect_db.get_connection(dbinfo["host"],dbinfo["port"], "qateam",dbinfo["user"],dbinfo["password"])
-    rsp_data=connect_db.select_from_mysql(conn,query,1)
     return JsonResponse(rsp_data, safe=False) 
 
 #展示主页

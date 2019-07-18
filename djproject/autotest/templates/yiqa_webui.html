@@ -647,7 +647,7 @@
 	                			<th>
 	                			  购物操作<i class="glyphicon glyphicon-question-sign" style="color:red" data-toggle="tooltip" title="包含购物车操作、订单操作"></i> 
 	                			</th>
-	                			
+	                			<th>已运行/<span style="color:blue">次</span></th>
 	                			<th>
 	                			  平均时间<i class="glyphicon glyphicon-question-sign" style="color:red" data-toggle="tooltip" title="根据历史运行记录计算出的平均时间"></i>
 	                			</th>
@@ -700,9 +700,12 @@
 				html+='<td class="multi-lines">'+(data[i].py_marks.replace(/;/g,'<br />')||'-')+'</td>'
         		
         		html+='<td class="center">'+(data[i].cart_order_oprs?'是':'否')+'</td>'
+        		
+        		html+='<td class="center">'+(data[i].run_total||'0')+'</td>'
         		//html+='<td>'+(data[i].is_parallel?'是':'否')+'</td>'
-        		if(data[i].estimate_time){
-        			var avg=data[i].estimate_time;
+        		if(data[i].avg){
+        			//var avg=data[i].avg;
+        			var avg=parseFloat(data[i].avg);
         			var estimate_html;
 	        		if (avg>60) {
 	        			var min=Math.round(avg/60);
@@ -716,7 +719,9 @@
 	        	}else{
 	        		html+='<td class="center"><span id="estimate_'+data[i].id+'">-</span> '
 	        	}
-        		html+='<i class="glyphicon glyphicon-refresh" style="color:blue;" onclick="refreshEstimate(\''+data[i].py_name+'\','+data[i].id+')"></i></td>'
+        		//html+='<i class="glyphicon glyphicon-refresh" style="color:blue;" onclick="refreshEstimate(\''+data[i].py_name+'\','+data[i].id+')"></i>'
+        		html+='</td>'
+        		
 				html+='<td>'
 				html+='<button class="btn btn-xs btn-link" type="button" onclick="showTestCase(\''+data[i].py_name+'\')">代码</button>'
 				html+='<button class="btn btn-xs btn-link" type="button" onclick="runTestCase('+data[i].id+')">运行</button>'
