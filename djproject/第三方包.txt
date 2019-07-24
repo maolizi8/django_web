@@ -1,4 +1,4 @@
-
+***************************************************
 pip install djangorestframework （启动服务时会报错，需要使用下面那个安装方式）
 pip install django_rest_framework
 
@@ -11,3 +11,26 @@ pip install mysqlclient
 下载对应的版本：
 https://www.lfd.uci.edu/~gohlke/pythonlibs/#mysqlclient
 pip install mysqlclient-1.3.13-cp36-cp36m-win_amd64.whl
+
+***************************************************
+***************************************************
+【ldap】
+pip install ConfigParser
+pip install ldap (报错：gbk错误)
+pip install python-ldap （报错）
+pip install django-auth-ldap（依赖python-ldap, 仍然报错）
+
+pip install django-python3-ldap （自动安装依赖包：pyasnl、ldap3、考虑ldap失败原因是应该安装ldap3）
+reference：https://github.com/etianen/django-python3-ldap
+【Installation】
+Install using pip install django-python3-ldap.
+Add 'django_python3_ldap' to your INSTALLED_APPS setting.
+Set your AUTHENTICATION_BACKENDS setting to ("django_python3_ldap.auth.LDAPBackend",)
+Configure the settings for your LDAP server (see Available settings, below).
+Optionally, run ./manage.py ldap_sync_users to perform an initial sync of LDAP users.
+Optionally, run ./manage.py ldap_promote <username> to grant superuser admin access to a given user.
+
+sso.yiyaowang.com
+
+***************************************************
+***************************************************
