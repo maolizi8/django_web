@@ -147,9 +147,11 @@ LDAP_AUTH_OBJECT_CLASS = "user"
 LDAP_AUTH_USER_FIELDS  = {
             "username": "sAMAccountName",
             
-            "first_name": "givenName",
-            "last_name": "sn",
-            "email": "userPrincipalName",
+            # ./manage.py ldap_sync_users时，添加上以下参数，可将信息同步，
+            # 实际登录，大多只需要username匹配上即可，以下参数可去除，以免干扰
+            #"first_name": "givenName",
+            #"last_name": "sn",
+            #"email": "userPrincipalName",
         }
 # A tuple of django model fields used to uniquely identify a user.
 LDAP_AUTH_USER_LOOKUP_FIELDS = ("username",)
