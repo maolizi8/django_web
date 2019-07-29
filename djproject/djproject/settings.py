@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     
     'rest_framework',   #api
+    'django_python3_ldap', # ldap3
     
     # project apps
     'autotest',
@@ -127,6 +128,39 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+'''--------添加ldap认证登录方法--------'''
+AUTHENTICATION_BACKENDS = (
+    "django_python3_ldap.auth.LDAPBackend",  #配置为先使用LDAP认证，如通过认证则不再使用后面的认证方式
+    "django.contrib.auth.backends.ModelBackend",
+)
+LDAP_AUTH_URL = 'ldap://xx.xx.xx.xx:389'
+LDAP_AUTH_USE_TLS = False
+LDAP_AUTH_CONNECTION_USERNAME = "username for auth-connection, provided from IT"
+LDAP_AUTH_CONNECTION_PASSWORD = "password for auth-connection, provided from IT"
+
+LDAP_AUTH_SEARCH_BASE = 'dc=domain,dc=com' # 获取所有的用户
+
+#LDAP_AUTH_OBJECT_CLASS = "inetOrgPerson"
+LDAP_AUTH_OBJECT_CLASS = "user"
+LDAP_AUTH_USER_FIELDS  = {
+            "username": "sAMAccountName",
+            
+            "first_name": "givenName",
+            "last_name": "sn",
+            "email": "userPrincipalName",
+        }
+# A tuple of django model fields used to uniquely identify a user.
+LDAP_AUTH_USER_LOOKUP_FIELDS = ("username",)
+LDAP_AUTH_CLEAN_USER_DATA = "django_python3_ldap.utils.clean_user_data"
+LDAP_AUTH_SYNC_USER_RELATIONS = "django_python3_ldap.utils.sync_user_relations"
+LDAP_AUTH_FORMAT_SEARCH_FILTERS = "django_python3_ldap.utils.format_search_filters"
+#LDAP_AUTH_FORMAT_USERNAME = "django_python3_ldap.utils.format_username_openldap"
+# #For user-principal-name formats (e.g. "user@domain.com"):
+LDAP_AUTH_FORMAT_USERNAME="django_python3_ldap.utils.format_username_active_directory_principal"
+LDAP_AUTH_ACTIVE_DIRECTORY_DOMAIN="domain.com"
+
 
 
 # Internationalization
