@@ -1,0 +1,71 @@
+CREATE TABLE `ui_autotest_collections` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `htmlhead` varchar(50) NOT NULL,
+  `jk_jobname` varchar(50) NOT NULL,
+  `jk_buildid` varchar(50) NOT NULL,
+  `is_end` int(2) NOT NULL DEFAULT '0' COMMENT '结合是否结束：0-未结束，1-已结束',
+  `fpath` varchar(100) DEFAULT NULL,
+  `tests_count` int(11) DEFAULT NULL,
+  `fail_total` int(11) NOT NULL DEFAULT '0',
+  `pass_total` int(11) NOT NULL DEFAULT '0',
+  `error_total` int(11) NOT NULL DEFAULT '0',
+  `rerun_total` int(11) NOT NULL DEFAULT '0',
+  `run_total` int(11) NOT NULL DEFAULT '0',
+  `skip_total` int(11) NOT NULL DEFAULT '0',
+  `duration` float(20,4) DEFAULT '0.0000',
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `update_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+
+
+
+CREATE TABLE `ui_autotest_tests` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `jk_jobname` varchar(100) NOT NULL,
+  `jk_buildid` varchar(50) NOT NULL,
+  `test_name` varchar(200) NOT NULL,
+  `test_result` varchar(10) NOT NULL COMMENT '测试用例状态：0-未开始，1-进行中，2-成功，3-失败，4-跳过，5-重跑',
+  `test_desc` varchar(300) DEFAULT NULL,
+  `test_phase` varchar(10) DEFAULT NULL COMMENT '测试阶段：setup，call，teardown',
+  `test_duration` float(15,4) DEFAULT NULL,
+  `test_log` mediumtext,
+  `test_html` varchar(255) DEFAULT NULL,
+  `test_start` bigint(13) DEFAULT NULL,
+  `test_end` bigint(13) DEFAULT NULL,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `test_result` (`test_result`)
+) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `ui_autotest_tests_errors` (
+  `id` bigint(11) NOT NULL AUTO_INCREMENT,
+  `jk_jobname` varchar(100) NOT NULL,
+  `jk_buildid` varchar(50) NOT NULL,
+  `test_name` varchar(200) NOT NULL,
+  `test_path` varchar(200) DEFAULT NULL,
+  `test_result` varchar(10) DEFAULT NULL COMMENT '测试用例状态：0-未开始，1-进行中，2-成功，3-失败，4-跳过，5-重跑',
+  `test_desc` varchar(300) DEFAULT NULL,
+  `test_phase` varchar(10) DEFAULT NULL COMMENT '测试阶段：setup，call，teardown',
+  `test_duration` varchar(100) DEFAULT NULL,
+  `test_log` mediumtext,
+  `error_png` mediumtext COMMENT 'base64的图片',
+  `error_link` varchar(600) DEFAULT NULL,
+  `error_html` mediumtext,
+  `error_driverlog` mediumtext,
+  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  KEY `test_result` (`test_result`),
+  KEY `errortestquery` (`test_name`,`jk_buildid`,`jk_jobname`,`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8;
+
+
+CREATE TABLE `auto_jk_jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `jk_name` varchar(100) NOT NULL,
+  `jk_desc` varchar(500) NOT NULL,
+  `jk_server` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=utf8;
+
